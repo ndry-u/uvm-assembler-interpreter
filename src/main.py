@@ -1,10 +1,11 @@
-"""Ассемблер УВМ (Этап 1)."""
+"""Ассемблер УВМ (Этап 2)."""
 
 from __future__ import annotations
 
 import argparse
 import sys
 
+from src.codegen import format_bytes_hex, generate_binary
 from src.parser import ParseError, parse_program
 
 
@@ -36,6 +37,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Ошибка разбора: {error}", file=sys.stderr)
         return 1
 
+    binary_data = generate_binary(instructions)
+
+    with open(args.output, "wb") as f:
+        f.write(binary_data)
+
     if args.test_mode:
         print("Внутреннее представление программы:")
         for i, instr in enumerate(instructions):
@@ -43,8 +49,9 @@ def main(argv: list[str] | None = None) -> int:
                 f"  {i}: A={instr.opcode}, B={instr.b}, "
                 f"C={instr.c}, D={instr.d}"
             )
+        print(f"\nРазмер бинарного файла: {len(binary_data)} байт")
+        print(f"Байтовый код: {format_bytes_hex(binary_data)}")
 
-    print(f"\nУспешно разобрано команд: {len(instructions)}")
     return 0
 
 
